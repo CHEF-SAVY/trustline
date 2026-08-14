@@ -9,8 +9,20 @@ export const CONFIG = {
   nativeCurrency: { name: "Coston2 Flare", symbol: "C2FLR", decimals: 18 },
 
   // Filled in at deployment.
-  creditRegistry: "0xFC7aeDaCcD34AA685d60141BFFE9568FB71f8D9A",
-  trustLinePool: "0xE2A6be036cfFedf83406772D31e745cBA8EA3e58",
+  //
+  // These point at the DEMO stack (script/DeployDemo.s.sol), deployed because FCC's
+  // MachineManager.toProduction() reverts with no revert data on Coston2, stranding our TEE
+  // machine at status 1 (INITIALIZED) so the production verifier can never accept it.
+  // The demo stack differs in exactly one way: UnderwritingVerifier reads machine status through
+  // DemoTeeMachineRegistry (0x6209AcbaEa55ccCD874F58aA4B5eE889128bD75B), which reports a
+  // registered machine as PRODUCTION. Signature verification, signer identity and extension
+  // membership are all still checked for real, on-chain. See src/demo/DemoTeeMachineRegistry.sol.
+  //
+  // Original production stack, restore once toProduction works upstream:
+  //   creditRegistry: "0xFC7aeDaCcD34AA685d60141BFFE9568FB71f8D9A"
+  //   trustLinePool:  "0xE2A6be036cfFedf83406772D31e745cBA8EA3e58"
+  creditRegistry: "0x539296b1A1210A7a6aEC99E2d311d0a89F350f69",
+  trustLinePool: "0x41aC977D774cB86EC7f9b3125776C50e97bd9CE6",
   instructionSender: "0x33C7E0D2d9da4eF91de1C99Cfd33692e640DfD0E",
 
   // Pool asset. Coston2 FXRP, resolved at runtime via

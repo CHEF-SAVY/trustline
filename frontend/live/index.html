@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TrustLine — Credit desk</title>
+<meta name="description" content="Request a private XRPL credit check and manage a live TrustLine pool position on Coston2." />
+<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="../app.css" />
+<script>document.documentElement.classList.remove('no-js');</script>
+</head>
+<body class="app-body">
+
+<a class="skip-link" href="#main">Skip to credit desk</a>
+
+<header class="site-head app-head">
+  <div class="shell head-inner">
+    <a class="wordmark" href="../index.html" aria-label="TrustLine, home">
+      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+        <rect x="1" y="1" width="16" height="16" rx="2" fill="none" stroke="currentColor"/>
+        <path d="M4 12.5 7.3 9l2.4 2.2L14 6.5" fill="none" stroke="currentColor" stroke-width="1.3"/>
+      </svg>
+      <span>TrustLine</span>
+    </a>
+    <span class="desk-label">Credit desk</span>
+    <div class="head-right">
+      <span class="net-pill" aria-label="Active network"><i aria-hidden="true"></i>Coston2</span>
+      <span id="account" class="account mono">Not connected</span>
+      <button id="connect" class="btn btn--primary">Connect wallet</button>
+    </div>
+  </div>
+</header>
+
+<main class="shell app-main" id="main">
+  <div class="app-intro">
+    <div>
+      <p class="eyebrow">Confidential underwriting</p>
+      <h1>Your credit line</h1>
+    </div>
+    <p>Private XRPL scoring and a live FXRP lending position, settled on Coston2.</p>
+  </div>
+
+  <p id="netErr" class="notice notice--err hide" role="alert"></p>
+
+  <div class="desk-grid">
+    <div class="desk-content">
+      <section class="panel credit-panel" aria-labelledby="creditH">
+        <div class="panel__head">
+          <div>
+            <p class="eyebrow">01 / Credit status</p>
+            <h2 id="creditH" class="panel__title"><span id="stateText">Not connected</span></h2>
+          </div>
+          <div class="panel__meta">
+            <span id="stateBadge" class="state" aria-label="Credit state"><i class="dot" aria-hidden="true"></i></span>
+            <span id="expiryCountdown" class="mono countdown"></span>
+          </div>
+        </div>
+
+        <div class="panel-rule"><span>UNDERWRITING RECORD</span></div>
+
+        <div id="attested" class="hide">
+          <div class="attestation-grid">
+            <div class="tier-readout">
+              <span class="stat__k">Risk tier</span>
+              <span class="tier-value num" id="tierV">—</span>
+            </div>
+            <div class="attestation-details">
+              <div class="stat"><span class="stat__k">Maximum LTV</span><span class="stat__v num" id="ltvV">—</span></div>
+              <div class="stat"><span class="stat__k">TEE signer</span><span class="stat__v stat__v--sm mono" id="teeV">—</span></div>
+            </div>
+          </div>
+
+          <div class="bars" aria-label="Borrowing power comparison">
+            <div class="bars__row">
+              <span class="bars__label">Standard pool</span>
+              <span class="bars__track"><i id="stdBar" class="bars__fill"></i></span>
+              <span class="bars__pct num" id="stdPct"></span>
+              <span class="bars__amt num" id="stdAmt">—</span>
+            </div>
+            <div class="bars__row bars__row--lead">
+              <span class="bars__label">TrustLine limit</span>
+              <span class="bars__track"><i id="uwBar" class="bars__fill bars__fill--lead"></i></span>
+              <span class="bars__pct num" id="uwPct"></span>
+              <span class="bars__amt num" id="uwAmt">—</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="notAttested" class="hide">
+          <div class="empty-state">
+            <div class="empty-glyph" aria-hidden="true"><span>?</span></div>
+            <div>
+              <h3>No active verdict</h3>
+              <p>Request a confidential credit check. Your XRPL history is read inside a TEE; only a risk tier and maximum LTV are published.</p>
+            </div>
+          </div>
+          <div class="field request-field">
+            <label class="field__label" for="xrplAddr">XRPL address to assess</label>
+            <div class="field__row">
+              <input id="xrplAddr" placeholder="rPEPPER7kfTD9w2To4CQk6UCfuHM9c6GDY" spellcheck="false" autocomplete="off" />
+              <button id="requestBtn" class="btn btn--primary">Request credit check</button>
+            </div>
+            <p class="field__help">The address appears in the request, so its link to your wallet is public. Its transaction history is not.</p>
+          </div>
+        </div>
+
+        <div id="pending" class="hide">
+          <div class="pending-card">
+            <span class="pending-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            <div>
+              <h3>Waiting for an enclave result</h3>
+              <p>The instruction has been sent. There is no reliable intermediate progress signal, so this desk polls the registry until the attestation lands.</p>
+              <p class="pending-note">
+                <strong>Testnet status:</strong> our enclave is registered on Coston2 but stranded at
+                <span class="mono">INITIALIZED</span> — Flare's <span class="mono">toProduction</span>
+                reverts with no revert data, and only <span class="mono">PRODUCTION</span> machines are
+                sent work. Until that clears upstream, this state will not resolve on its own. We would
+                rather show you the real wait than fake a progress bar.
+              </p>
+            </div>
+          </div>
+          <div class="pending-row">
+            <code id="pendingTx" class="mono"></code>
+            <button id="refreshBtn" class="btn btn--ghost">Check now</button>
+          </div>
+        </div>
+
+        <p id="reqErr" class="notice notice--err hide" role="alert"></p>
+      </section>
+
+      <section class="panel pool-panel" aria-labelledby="poolH">
+        <div class="panel__head">
+          <div>
+            <p class="eyebrow">02 / Pool position</p>
+            <h2 id="poolH" class="panel__title">Collateral and debt</h2>
+          </div>
+          <span class="asset-tag mono">FXRP / 6 DEC</span>
+        </div>
+
+        <dl class="position-grid">
+          <div class="position-primary"><dt>Collateral</dt><dd class="mono" id="colV">—</dd><small>FXRP deposited</small></div>
+          <div class="position-primary"><dt>Debt</dt><dd class="mono" id="debtV">—</dd><small>FXRP borrowed</small></div>
+          <div><dt>Available to borrow</dt><dd class="mono" id="availV">—</dd></div>
+          <div><dt>Current LTV</dt><dd class="mono" id="curLtvV">—</dd></div>
+          <div><dt>Liquidation threshold</dt><dd class="mono" id="liqV">—</dd></div>
+        </dl>
+
+        <div class="action-desk">
+          <div class="field">
+            <label class="field__label" for="amount">FXRP amount</label>
+            <input id="amount" placeholder="0.00" spellcheck="false" inputmode="decimal" />
+          </div>
+          <div class="action-buttons">
+            <button id="depositBtn" class="btn btn--ghost">Deposit</button>
+            <button id="borrowBtn" class="btn btn--primary">Borrow</button>
+            <button id="repayBtn" class="btn btn--ghost">Repay</button>
+          </div>
+        </div>
+
+        <p id="poolErr" class="notice notice--err hide" role="alert"></p>
+      </section>
+    </div>
+  </div>
+
+  <footer class="app-foot">
+    <span>TrustLine contracts are live on Coston2.</span>
+    <a id="poolLink" href="https://coston2-explorer.flare.network/address/0x41aC977D774cB86EC7f9b3125776C50e97bd9CE6">View pool contract <span aria-hidden="true">↗</span></a>
+  </footer>
+</main>
+
+<script type="module" src="../app.js"></script>
+</body>
+</html>

@@ -180,13 +180,13 @@ The previous direction (a Flipside Crypto-style light page with heavy scroll-dri
   inverting to dark-first.
 
 ### What must survive any rewrite
-`frontend/app.html` uses **32 element IDs that `app.js` depends on**. Changing markup is fine;
+`frontend/live/index.html` uses the element IDs that `app.js` depends on. Changing markup is fine;
 dropping an ID silently breaks the app. Verify with:
 
 ```bash
 cd frontend && python3 - <<'PY'
 import re
-js=open('app.js').read(); html=open('app.html').read()
+js=open('app.js').read(); html=open('live/index.html').read()
 need=set(re.findall(r'\$\("([A-Za-z0-9_]+)"\)', js)) | set(re.findall(r'showErr\("([A-Za-z0-9_]+)"', js))
 have=set(re.findall(r'id="([A-Za-z0-9_]+)"', html))
 print("MISSING:", sorted(need-have) or "none")
