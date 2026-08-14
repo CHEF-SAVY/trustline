@@ -1,0 +1,272 @@
+[
+  {
+    "type": "constructor",
+    "inputs": [
+      {
+        "name": "_verifier",
+        "type": "address",
+        "internalType": "contract UnderwritingVerifier"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "VERIFIER",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract UnderwritingVerifier"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "consumedInstructionIds",
+    "inputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "currentMaxLTVBips",
+    "inputs": [
+      {
+        "name": "_borrower",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint16",
+        "internalType": "uint16"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "currentRiskTier",
+    "inputs": [
+      {
+        "name": "_borrower",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getAttestation",
+    "inputs": [
+      {
+        "name": "_borrower",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct CreditRegistry.StoredAttestation",
+        "components": [
+          {
+            "name": "riskTier",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "maxLTVBips",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "issuedAt",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "expiry",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "xrplAddressHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "teeId",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "instructionId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "hasValidAttestation",
+    "inputs": [
+      {
+        "name": "_borrower",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "submitAttestation",
+    "inputs": [
+      {
+        "name": "_data",
+        "type": "bytes",
+        "internalType": "bytes"
+      },
+      {
+        "name": "_id",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "_status",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "_signature",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "CreditAttested",
+    "inputs": [
+      {
+        "name": "borrower",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "riskTier",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "uint8"
+      },
+      {
+        "name": "maxLTV",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "expiry",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "teeId",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "instructionId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "AttestationExpired",
+    "inputs": [
+      {
+        "name": "expiry",
+        "type": "uint64",
+        "internalType": "uint64"
+      },
+      {
+        "name": "nowTs",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "AttestationNotNewer",
+    "inputs": [
+      {
+        "name": "storedIssuedAt",
+        "type": "uint64",
+        "internalType": "uint64"
+      },
+      {
+        "name": "incomingIssuedAt",
+        "type": "uint64",
+        "internalType": "uint64"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "AttestationReplayed",
+    "inputs": [
+      {
+        "name": "instructionId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ]
+  }
+]

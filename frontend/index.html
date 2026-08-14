@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TrustLine — Confidential Underwriting</title>
+<style>
+  :root {
+    --bg: #0b0f14;
+    --panel: #131a23;
+    --panel-2: #1a2330;
+    --line: #26313f;
+    --text: #e6edf3;
+    --muted: #8b9bb0;
+    --accent: #ff6b4a;
+    --good: #3fb950;
+    --warn: #d29922;
+    --bad: #f85149;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 20px 80px; }
+  header { border-bottom: 1px solid var(--line); padding-bottom: 20px; margin-bottom: 28px; }
+  h1 { margin: 0 0 6px; font-size: 26px; letter-spacing: -0.02em; }
+  h1 span { color: var(--accent); }
+  .sub { color: var(--muted); margin: 0; font-size: 14px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 20px; margin-bottom: 18px;
+  }
+  .card h2 { margin: 0 0 14px; font-size: 15px; text-transform: uppercase;
+             letter-spacing: 0.08em; color: var(--muted); font-weight: 600; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  input {
+    flex: 1 1 260px; min-width: 0; background: var(--bg); color: var(--text);
+    border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px;
+  }
+  input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  button {
+    background: var(--accent); color: #16110f; border: 0; border-radius: 8px;
+    padding: 10px 16px; font-weight: 650; cursor: pointer; font-size: 14px;
+  }
+  button.secondary { background: var(--panel-2); color: var(--text); border: 1px solid var(--line); }
+  button:disabled { opacity: 0.45; cursor: not-allowed; }
+  .state { display: inline-flex; align-items: center; gap: 7px; font-weight: 600; font-size: 13px;
+           padding: 5px 11px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel-2); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+  .dot.good { background: var(--good); } .dot.warn { background: var(--warn); }
+  .dot.bad { background: var(--bad); } .dot.pending { background: var(--accent); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 14px; }
+  .stat { background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
+  .stat .k { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; }
+  .stat .v { font-size: 20px; font-weight: 650; margin-top: 3px; font-variant-numeric: tabular-nums; }
+  .compare { margin-top: 16px; }
+  .bar { height: 26px; background: var(--panel-2); border-radius: 6px; overflow: hidden;
+         border: 1px solid var(--line); position: relative; margin-bottom: 8px; }
+  .bar > i { display: block; height: 100%; }
+  .bar .fill-std { background: #30475e; }
+  .bar .fill-uw { background: linear-gradient(90deg, var(--accent), #ff9d7a); }
+  .bar b { position: absolute; inset: 0; display: flex; align-items: center;
+           padding: 0 10px; font-size: 12px; font-weight: 600; }
+  .legend { display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; }
+  code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; }
+  .muted { color: var(--muted); }
+  .note { font-size: 13px; color: var(--muted); margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .err { color: var(--bad); font-size: 13px; margin-top: 10px; word-break: break-word; }
+  .hide { display: none !important; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  td { padding: 6px 0; border-bottom: 1px solid var(--line); }
+  td:first-child { color: var(--muted); width: 42%; }
+  td:last-child { text-align: right; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Trust<span>Line</span></h1>
+    <p class="sub">Confidential underwriting for XRPFi lending on Flare · Coston2</p>
+  </header>
+
+  <div class="card">
+    <h2>Connection</h2>
+    <div class="row">
+      <button id="connect">Connect wallet</button>
+      <span id="account" class="mono muted">not connected</span>
+    </div>
+    <div id="netErr" class="err hide"></div>
+  </div>
+
+  <div class="card">
+    <h2>Credit status</h2>
+    <div class="row" style="justify-content: space-between">
+      <span id="stateBadge" class="state"><i class="dot"></i><span id="stateText">Not connected</span></span>
+      <span id="expiryCountdown" class="muted mono"></span>
+    </div>
+
+    <div id="attested" class="hide">
+      <div class="grid">
+        <div class="stat"><div class="k">Risk tier</div><div class="v" id="tierV">—</div></div>
+        <div class="stat"><div class="k">Max LTV</div><div class="v" id="ltvV">—</div></div>
+        <div class="stat"><div class="k">Attested by</div><div class="v mono" id="teeV" style="font-size:13px">—</div></div>
+      </div>
+
+      <div class="compare">
+        <div class="legend"><span>Standard (overcollateralized)</span><span id="stdAmt">—</span></div>
+        <div class="bar"><i class="fill-std" id="stdBar" style="width:0"></i><b id="stdPct"></b></div>
+        <div class="legend"><span>Underwritten by TrustLine</span><span id="uwAmt">—</span></div>
+        <div class="bar"><i class="fill-uw" id="uwBar" style="width:0"></i><b id="uwPct"></b></div>
+      </div>
+    </div>
+
+    <div id="notAttested" class="hide">
+      <p class="muted" style="font-size:13.5px">
+        Request a confidential credit check. Your XRPL transaction history is read
+        <strong>inside a TEE</strong> — only a risk tier and a max LTV are ever published on-chain.
+      </p>
+      <div class="row">
+        <input id="xrplAddr" placeholder="rPEPPER7kfTD9w2To4CQk6UCfuHM9c6GDY" spellcheck="false" />
+        <button id="requestBtn">Request credit check</button>
+      </div>
+    </div>
+
+    <div id="pending" class="hide">
+      <p class="muted" style="font-size:13.5px">
+        Instruction sent. It must reach a TEE machine, be scored, signed, and relayed back on-chain.
+        This is not instant and there is no progress to show — the page polls the registry and will
+        update when the attestation lands.
+      </p>
+      <div class="row">
+        <code id="pendingTx" class="muted"></code>
+        <button id="refreshBtn" class="secondary">Check now</button>
+      </div>
+    </div>
+
+    <div id="reqErr" class="err hide"></div>
+  </div>
+
+  <div class="card">
+    <h2>Pool position</h2>
+    <table>
+      <tr><td>Collateral</td><td class="mono" id="colV">—</td></tr>
+      <tr><td>Debt</td><td class="mono" id="debtV">—</td></tr>
+      <tr><td>Available to borrow</td><td class="mono" id="availV">—</td></tr>
+      <tr><td>Current LTV</td><td class="mono" id="curLtvV">—</td></tr>
+      <tr><td>Liquidation threshold</td><td class="mono" id="liqV">—</td></tr>
+    </table>
+    <div class="row" style="margin-top:14px">
+      <input id="amount" placeholder="amount" spellcheck="false" />
+      <button id="depositBtn" class="secondary">Deposit</button>
+      <button id="borrowBtn">Borrow</button>
+      <button id="repayBtn" class="secondary">Repay</button>
+    </div>
+    <div id="poolErr" class="err hide"></div>
+    <p class="note">
+      Contracts are read from <code>config.js</code>. Deploy with
+      <code>forge script script/Deploy.s.sol</code> and fill in the addresses.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>What stays private</h2>
+    <p class="muted" style="font-size:13.5px; margin:0">
+      On-chain, an attestation reveals only: your address, a <em>hash</em> of your XRPL address, a tier
+      0–3, an LTV, and two timestamps. Your transaction history, counterparties, balances and volumes
+      never leave the TEE. The XRPL address itself is visible in the <em>request</em> event — the TEE has
+      to be told what to score — so the borrower↔XRPL link is public while the evidence behind the
+      score is not.
+    </p>
+  </div>
+</div>
+
+<script type="module" src="./app.js"></script>
+</body>
+</html>

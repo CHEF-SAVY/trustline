@@ -1,0 +1,30 @@
+// Deployment addresses. Fill these in after running:
+//   forge script script/Deploy.s.sol:DeployScript --rpc-url coston2 --broadcast
+export const CONFIG = {
+  chainId: 114,
+  chainIdHex: "0x72",
+  chainName: "Flare Testnet Coston2",
+  rpcUrl: "https://coston2-api.flare.network/ext/C/rpc",
+  explorer: "https://coston2-explorer.flare.network",
+  nativeCurrency: { name: "Coston2 Flare", symbol: "C2FLR", decimals: 18 },
+
+  // Filled in at deployment.
+  creditRegistry: "",
+  trustLinePool: "",
+  instructionSender: "",
+
+  // Pool asset. Coston2 FXRP, resolved at runtime via
+  //   FlareContractRegistry -> AssetManagerFXRP -> fAsset()
+  // Never hardcode this for mainnet; re-resolve per network.
+  poolAsset: "0x0b6A3645c240605887a5532109323A3E12273dc7", // FTestXRP on Coston2
+  poolAssetSymbol: "FTestXRP",
+
+  // CRITICAL: FXRP has 6 decimals, NOT the usual 18. Getting this wrong scales every
+  // amount by 10^12 - "borrow 1" would request a trillion units. Verified on-chain:
+  //   cast call 0x0b6A...3dc7 "decimals()(uint8)" --rpc-url coston2  =>  6
+  poolAssetDecimals: 6,
+
+  // Must match TrustLinePool's constructor args.
+  standardLtvBips: 5000,
+  liquidationThresholdBips: 8500,
+};
