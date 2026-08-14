@@ -133,3 +133,110 @@ function initScrollUI() {
 
 initReveals();
 initScrollUI();
+
+// ---------------------------------------------------------------------------
+// Scroll-driven hero assembly
+// ---------------------------------------------------------------------------
+//
+// The hero is a tall "stage" with a sticky inner frame. As the page scrolls
+// through the stage's extra height, we map that distance to progress 0..1 and
+// scrub the figure through it. Nothing runs on a timer, so the user controls
+// the animation with their scroll — forwards and backwards.
+//
+// Three acts, driven by one value:
+//   0.00 – 0.45  five layers of history drift in and converge into a stack
+//   0.35 – 0.75  the stack slides right and passes into the enclave
+//   0.65 – 1.00  the enclave seals; a single signed verdict emerges
+//
+// Only transform and opacity are touched, and every write happens inside one
+// rAF callback, so no frame does layout work.
+
+function initHeroScrub() {
+  const stage = document.querySelector('[data-scrub]');
+  if (!stage) return;
+
+  const layers = Array.from(stage.querySelectorAll('.iso-layer'));
+  const enclave = stage.querySelector('#isoEnclave');
+  const out = stage.querySelector('#isoOut');
+  const bar = stage.querySelector('#scrubBar');
+  const caps = Array.from(stage.querySelectorAll('[data-cap]'));
+  if (!layers.length || !enclave || !out) return;
+
+  const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
+  /** Normalised progress of `v` across [a,b], clamped. */
+  const range = (v, a, b) => clamp01((v - a) / (b - a));
+  /** Ease-out cubic — decelerates into place, which reads as weight. */
+  const ease = (t) => 1 - Math.pow(1 - t, 3);
+
+  // Reduced motion: paint the finished state once and never listen to scroll.
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    layers.forEach((l) => { l.style.opacity = '0.15'; });
+    enclave.style.opacity = '1';
+    out.style.opacity = '1';
+    caps.forEach((c) => c.classList.add('on'));
+    if (bar) bar.style.transform = 'scaleX(1)';
+    return;
+  }
+
+  let queued = false;
+
+  const draw = () => {
+    queued = false;
+
+    const rect = stage.getBoundingClientRect();
+    const scrollable = stage.offsetHeight - window.innerHeight;
+    if (scrollable <= 0) return;
+    const p = clamp01(-rect.top / scrollable);
+
+    // Act 1 — converge. Layers start spread vertically and slightly rotated,
+    // then settle into a tight stack.
+    const conv = ease(range(p, 0, 0.45));
+    layers.forEach((layer, i) => {
+      const mid = (layers.length - 1) / 2;
+      const offset = (i - mid);
+      const spreadY = offset * 46 * (1 - conv);   // 46px apart -> 0
+      const stackY = offset * 15 * conv;          // settle into a 15px stack
+      const rot = offset * 5 * (1 - conv);        // slight fan, straightens
+      const fade = 0.25 + 0.75 * conv;
+
+      // Act 2 — travel. The whole stack slides toward the enclave and shrinks
+      // as it is consumed.
+      const travel = ease(range(p, 0.35, 0.75));
+      const x = travel * 190;
+      const scale = 1 - travel * 0.55;
+      const absorb = 1 - ease(range(p, 0.55, 0.8));  // fade out as it enters
+
+      layer.style.transform =
+        `translate(${x}px, ${spreadY + stackY}px) rotate(${rot}deg) scale(${scale})`;
+      layer.style.opacity = String(fade * absorb);
+    });
+
+    // The enclave fades in to receive the data.
+    enclave.style.opacity = String(ease(range(p, 0.3, 0.6)));
+
+    // Act 3 — the verdict emerges, with a small overshoot so it lands rather
+    // than simply appearing.
+    const emerge = ease(range(p, 0.65, 1));
+    const pop = 0.7 + 0.35 * emerge - 0.05 * Math.sin(emerge * Math.PI);
+    out.style.opacity = String(emerge);
+    out.style.transform = `scale(${pop})`;
+
+    if (bar) bar.style.transform = `scaleX(${p})`;
+
+    // Caption follows the active act.
+    const active = p < 0.4 ? 0 : p < 0.72 ? 1 : 2;
+    caps.forEach((c, i) => c.classList.toggle('on', i === active));
+  };
+
+  const onScroll = () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(draw);
+  };
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+  draw();
+}
+
+initHeroScrub();

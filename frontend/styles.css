@@ -382,51 +382,79 @@ input:focus { outline: none; border-color: var(--text); }
   .head-inner > .btn { margin-left: 0; }
 }
 
-/* --- hero ----------------------------------------------------------------
-   Asymmetric on purpose: the second headline line is pushed right, which is
-   what gives the reference its editorial feel. The annotation sits small and
-   low-left so the size gap between it and the headline does the talking. */
-.hero { padding-block: var(--s-16) var(--s-24); overflow: hidden; }
-@media (min-width: 768px) { .hero { padding-block: var(--s-24) var(--s-32); } }
-
-.hero-grid { display: grid; gap: var(--s-8); }
-.hero-title { grid-column: 1 / -1; }
-.hero-title__offset { padding-left: 0; }
-@media (min-width: 768px) {
-  .hero-title__offset { padding-left: 22%; }
+/* --- hero scroll stage ---------------------------------------------------
+   The stage is tall; the sticky frame inside it holds the figure at viewport
+   height while the page scrolls through that extra distance. That distance is
+   what the scrub maps onto, so a taller stage = a slower, more deliberate
+   assembly. 260vh gives roughly 1.6 viewports of scroll to play through. */
+.hero-stage { height: 260vh; padding: 0; }
+.hero-sticky {
+  position: sticky; top: 0;
+  height: 100vh; min-height: 560px;
+  display: flex; align-items: center;
+  overflow: hidden;
+}
+@media (max-width: 700px) {
+  /* On a phone, a long pinned section reads as a broken page — you scroll and
+     nothing moves away. Shorten the stage so it stays brisk. */
+  .hero-stage { height: 180vh; }
 }
 
+.hero-grid { display: grid; gap: var(--s-6); width: 100%; }
+.hero-title { grid-column: 1 / -1; }
+.hero-title__offset { padding-left: 0; }
+@media (min-width: 768px) { .hero-title__offset { padding-left: 22%; } }
+
 .hero-annot { order: 3; }
-.hero-figure { order: 2; margin: 0; }
+.hero-figure { order: 2; margin: 0; position: relative; }
 
 @media (min-width: 900px) {
   .hero-grid {
-    grid-template-columns: minmax(180px, 1fr) minmax(0, 2fr);
+    grid-template-columns: minmax(170px, 1fr) minmax(0, 2fr);
     align-items: start;
-    row-gap: var(--s-12);
+    row-gap: var(--s-8);
   }
   .hero-title { grid-column: 1 / -1; }
-  .hero-annot { order: 0; grid-column: 1; padding-top: var(--s-4); }
+  .hero-annot { order: 0; grid-column: 1; padding-top: var(--s-2); }
   .hero-figure { order: 0; grid-column: 2; }
 }
 
 .iso-svg { width: 100%; height: auto; display: block; color: var(--text); }
 
+/* Each moving piece gets its own transform origin so rotation reads as the
+   object turning in space rather than sliding around the canvas. */
+.iso-layer, #isoEnclave, #isoOut {
+  transform-box: fill-box;
+  transform-origin: center;
+  will-change: transform, opacity;
+}
+
 .iso-cap {
   display: flex; justify-content: space-between; gap: var(--s-4);
-  margin-top: var(--s-4);
-  max-width: none;
-  color: var(--text-faint);
+  margin-top: var(--s-4); max-width: none; color: var(--text-faint);
 }
-.iso-cap span { flex: 0 1 auto; }
+/* Captions light up as their stage becomes the active one, so the diagram
+   explains itself as it assembles. */
+.iso-cap span { transition: color var(--dur) var(--ease), opacity var(--dur) var(--ease); opacity: 0.45; }
+.iso-cap span.on { color: var(--text); opacity: 1; }
 
-/* Slow drift on the flow lines — the only ambient motion on the page, and it
-   stops entirely under reduced-motion via the global override. */
-.iso-flow {
-  stroke-dasharray: 3 5;
-  animation: flow 2.6s linear infinite;
+/* Thin scrub readout — shows how far through the assembly you are. */
+.scrub {
+  margin-top: var(--s-4); height: 1px; width: 100%;
+  background: var(--line); position: relative; overflow: hidden;
 }
-@keyframes flow { to { stroke-dashoffset: -16; } }
+.scrub > i {
+  position: absolute; inset: 0; background: var(--text);
+  transform: scaleX(0); transform-origin: 0 50%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* No pinning at all: the stage collapses to a normal section and the figure
+     shows its finished state. A pinned section that cannot animate is just a
+     long stretch of dead scroll. */
+  .hero-stage { height: auto; }
+  .hero-sticky { position: static; height: auto; min-height: 0; padding-block: var(--s-24); }
+}
 
 /* --- shared section head ------------------------------------------------- */
 .split { display: grid; gap: var(--s-4); margin-block: var(--s-4) var(--s-12); }

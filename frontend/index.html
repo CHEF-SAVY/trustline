@@ -32,65 +32,76 @@
 
 <main id="main">
 
-  <!-- ── Hero ─────────────────────────────────────────────────────────── -->
-  <section class="hero iso-bg" id="hero">
-    <span class="iso-mark" style="left:18%;top:34%"></span>
-    <span class="iso-mark" style="left:78%;top:28%"></span>
-    <span class="iso-mark" style="left:31%;top:74%"></span>
-    <span class="iso-mark" style="left:66%;top:82%"></span>
+  <!-- ── Hero ───────────────────────────────────────────────────────────
+       The hero is a scroll STAGE: it is tall, and an inner sticky frame holds
+       the figure still while the page scrolls past it. That scroll distance is
+       mapped to a 0..1 progress value which scrubs the animation, so the object
+       assembles under the user's control rather than playing on a timer.
+       The motion carries the product's actual argument: scattered private
+       history converges, passes through the enclave, and leaves as one signed
+       verdict. -->
+  <section class="hero-stage" id="hero" data-scrub>
+    <div class="hero-sticky iso-bg">
+      <span class="iso-mark" style="left:16%;top:24%"></span>
+      <span class="iso-mark" style="left:80%;top:30%"></span>
+      <span class="iso-mark" style="left:28%;top:76%"></span>
 
-    <div class="shell hero-grid">
-      <h1 class="hero-title reveal" data-reveal>
-        <span class="line-mask"><span>Borrow on trust,</span></span>
-        <span class="line-mask hero-title__offset"><span>not just collateral.</span></span>
-      </h1>
+      <div class="shell hero-grid">
+        <h1 class="hero-title reveal" data-reveal>
+          <span class="line-mask"><span>Borrow on trust,</span></span>
+          <span class="line-mask hero-title__offset"><span>not just collateral.</span></span>
+        </h1>
 
-      <p class="annot hero-annot reveal" data-reveal data-delay="220">
-        TrustLine reads a borrower's XRPL history inside a secure enclave,
-        then signs only the verdict. The evidence never leaves.
-      </p>
+        <p class="annot hero-annot reveal" data-reveal data-delay="220">
+          TrustLine reads a borrower's XRPL history inside a secure enclave,
+          then signs only the verdict. The evidence never leaves.
+        </p>
 
-      <!-- The product, drawn literally: many layers of private history on the
-           left, compressed through the enclave, emerging as one small signed
-           card on the right. -->
-      <figure class="hero-figure reveal" data-reveal data-delay="120" aria-labelledby="figcap">
-        <svg viewBox="0 0 560 380" role="img" aria-labelledby="figtitle" class="iso-svg">
-          <title id="figtitle">Layers of private transaction history compressed into a single signed attestation</title>
-          <defs>
-            <linearGradient id="fade" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%"  stop-color="currentColor" stop-opacity="0.04"/>
-              <stop offset="100%" stop-color="currentColor" stop-opacity="0.16"/>
-            </linearGradient>
-          </defs>
-          <g class="iso-stack" stroke="currentColor" fill="none" stroke-width="1">
-            <!-- history layers -->
-            <g opacity="0.55">
-              <path d="M60 190 L150 138 L240 190 L150 242 Z" fill="url(#fade)"/>
-              <path d="M60 172 L150 120 L240 172 L150 224 Z" fill="url(#fade)"/>
-              <path d="M60 154 L150 102 L240 154 L150 206 Z" fill="url(#fade)"/>
-              <path d="M60 136 L150 84  L240 136 L150 188 Z" fill="url(#fade)"/>
-              <path d="M60 118 L150 66  L240 118 L150 170 Z" fill="url(#fade)"/>
+        <figure class="hero-figure" aria-labelledby="figcap">
+          <svg viewBox="0 0 560 360" role="img" aria-labelledby="figtitle" class="iso-svg" id="isoFig">
+            <title id="figtitle">Layers of private transaction history converging into a single signed attestation</title>
+            <defs>
+              <linearGradient id="fade" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%"  stop-color="currentColor" stop-opacity="0.05"/>
+                <stop offset="100%" stop-color="currentColor" stop-opacity="0.18"/>
+              </linearGradient>
+            </defs>
+
+            <g stroke="currentColor" fill="none" stroke-width="1">
+              <!-- Five layers of history. JS drives each one's transform. -->
+              <g id="isoLayers">
+                <path class="iso-layer" data-i="0" d="M110 200 L200 148 L290 200 L200 252 Z" fill="url(#fade)"/>
+                <path class="iso-layer" data-i="1" d="M110 200 L200 148 L290 200 L200 252 Z" fill="url(#fade)"/>
+                <path class="iso-layer" data-i="2" d="M110 200 L200 148 L290 200 L200 252 Z" fill="url(#fade)"/>
+                <path class="iso-layer" data-i="3" d="M110 200 L200 148 L290 200 L200 252 Z" fill="url(#fade)"/>
+                <path class="iso-layer" data-i="4" d="M110 200 L200 148 L290 200 L200 252 Z" fill="url(#fade)"/>
+              </g>
+
+              <!-- Enclave: the sealed boundary the data passes through. -->
+              <g id="isoEnclave" opacity="0">
+                <path d="M330 210 L400 169 L470 210 L400 251 Z" stroke-dasharray="3 4"/>
+                <path d="M330 210 L330 178 L400 137 L470 178 L470 210" stroke-dasharray="3 4"/>
+                <path d="M400 169 L400 137" stroke-dasharray="3 4"/>
+              </g>
+
+              <!-- The signed verdict. -->
+              <g id="isoOut" opacity="0">
+                <path d="M362 210 L400 188 L438 210 L400 232 Z"
+                      fill="currentColor" fill-opacity="0.92" stroke="none"/>
+              </g>
             </g>
-            <!-- enclave boundary -->
-            <path class="iso-enclave" d="M300 200 L370 159 L440 200 L370 241 Z"
-                  fill="none" stroke-dasharray="3 4" opacity="0.75"/>
-            <path class="iso-enclave" d="M300 200 L300 172 L370 131 L440 172 L440 200"
-                  fill="none" stroke-dasharray="3 4" opacity="0.75"/>
-            <path d="M370 159 L370 131" stroke-dasharray="3 4" opacity="0.75"/>
-            <!-- the attestation -->
-            <path class="iso-out" d="M370 200 L410 177 L450 200 L410 223 Z"
-                  fill="currentColor" fill-opacity="0.9" stroke="none"/>
-            <!-- flow -->
-            <path class="iso-flow" d="M244 152 C270 152 276 178 298 186" opacity="0.5"/>
-            <path class="iso-flow" d="M244 168 C268 168 276 184 298 192" opacity="0.35"/>
-          </g>
-        </svg>
-        <figcaption id="figcap" class="annot iso-cap">
-          <span>Transaction history</span>
-          <span>Enclave</span>
-          <span>Signed verdict</span>
-        </figcaption>
-      </figure>
+          </svg>
+
+          <figcaption id="figcap" class="annot iso-cap">
+            <span data-cap="0">Transaction history</span>
+            <span data-cap="1">Enclave</span>
+            <span data-cap="2">Signed verdict</span>
+          </figcaption>
+
+          <!-- Scrub position, so the state is legible rather than just felt. -->
+          <div class="scrub" aria-hidden="true"><i id="scrubBar"></i></div>
+        </figure>
+      </div>
     </div>
   </section>
 
