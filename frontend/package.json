@@ -1,0 +1,9 @@
+{
+  "name": "trustline-frontend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check-selectors": "node check-selectors.mjs",
+    "serve": "python3 -m http.server 5173"
+  }
+}
