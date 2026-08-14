@@ -202,15 +202,20 @@ The five app states are driven by `app.js` `show()`: `#notAttested`, `#pending`,
 
 1. **Redesign the frontend** per §5. This is what the user asked for next.
 2. **Stand up a TEE machine** so attestations actually work. Needs:
-   - Flare indexer DB credentials — request drafted at `docs/indexer-request.txt`, **not yet sent**.
-     The credentials in the old public docs are dead; the current ones are in the hackathon
-     channel's pinned message.
+   - Flare indexer DB credentials. **Answered by Flare 2026-08-14: no VPN needed, and the
+     credentials live in the hackathon channel's pinned message** (not issued per-request). The old
+     public `indexer-reader` ones are dead. Paste them into
+     `tee-runtime/config/proxy/extension_proxy.coston2.docker.toml` under `[db]`.
    - A **stable** public HTTPS URL — named cloudflared tunnel or reserved ngrok domain. Quick
      tunnels rotate on restart, and the URL is stored on-chain, so providers keep POSTing to the
      dead hostname. This is the most common cause of machines stuck at INITIALIZED.
    - Then: `pre-build.sh` → `start-services.sh --chain coston2` → `post-build.sh`, with
      `SIMULATED_TEE=true` (fine on Coston2, no special hardware needed).
    - Docker, Go, Foundry and jq are already installed and working on this machine.
+   - `tee-runtime/` is a prepared working copy of the scaffold with our extension swapped in as its
+     `go/` implementation, `config/extension.env` pinned to extension **66285** (so `pre-build.sh`
+     must be SKIPPED — running it would register a second extension and orphan ours), and
+     `.env.coston2` filled in apart from `EXT_PROXY_URL`. It is gitignored because it holds keys.
 3. **Prove the verification path without a live TEE** (a good de-risking step, and faster than 2):
    sign an attestation locally with a known key, deploy a verifier pointed at a mock machine
    registry, and drive submit → verify → borrow-at-75% against real deployed contracts.

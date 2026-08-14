@@ -3,6 +3,21 @@
 Written against the **post-redeploy** FCC stack (Coston2 FCC was redeployed; the old deployment died
 22 Jul 2026). Every value here was verified on-chain on 2026-08-14.
 
+## 0a. Indexer credentials — CONFIRMED ANSWER
+
+Asked Flare directly (Kristaps Grinbergs, Flare Network, 2026-08-14):
+
+> "please check pin messages. **No VPN is needed.**"
+
+So: **no VPN**, and the credentials are published in the hackathon channel's **pinned message** —
+they are not issued per-request. The `indexer-reader` credentials in the older public docs are dead;
+use the pinned ones. This also settles the `34.38.42.208` vs `35.241.249.150` question — take
+whatever host the pinned message gives.
+
+They go in `tee-runtime/config/proxy/extension_proxy.coston2.docker.toml` under `[db]`.
+
+---
+
 ## 0. Preflight — are you on the live stack?
 
 | Thing | Correct value | How it fails if wrong |
