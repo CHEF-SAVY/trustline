@@ -9,9 +9,9 @@ export const CONFIG = {
   nativeCurrency: { name: "Coston2 Flare", symbol: "C2FLR", decimals: 18 },
 
   // Filled in at deployment.
-  creditRegistry: "",
-  trustLinePool: "",
-  instructionSender: "",
+  creditRegistry: "0xFC7aeDaCcD34AA685d60141BFFE9568FB71f8D9A",
+  trustLinePool: "0xE2A6be036cfFedf83406772D31e745cBA8EA3e58",
+  instructionSender: "0x33C7E0D2d9da4eF91de1C99Cfd33692e640DfD0E",
 
   // Pool asset. Coston2 FXRP, resolved at runtime via
   //   FlareContractRegistry -> AssetManagerFXRP -> fAsset()
@@ -25,6 +25,8 @@ export const CONFIG = {
   poolAssetDecimals: 6,
 
   // Must match TrustLinePool's constructor args.
+  extensionId: 66285,
+
   standardLtvBips: 5000,
   liquidationThresholdBips: 8500,
 };
