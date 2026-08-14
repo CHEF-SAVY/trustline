@@ -1,0 +1,204 @@
+/* ============================================================================
+   TrustLine — app surface
+   ----------------------------------------------------------------------------
+   The landing page argues; this page is a working instrument. Same tokens and
+   same restraint, but tighter density, no scroll choreography, and no ambient
+   motion — when you're reading your own credit line, movement is noise.
+   ========================================================================= */
+
+.app-body { background: var(--paper); }
+
+.head-right {
+  display: flex; align-items: center; gap: var(--s-4);
+  margin-left: auto;
+}
+
+.net-pill {
+  display: none;
+  padding: var(--s-1) var(--s-3);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: var(--t-note);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+@media (min-width: 560px) { .net-pill { display: inline-block; } }
+
+.app-main {
+  display: grid;
+  gap: var(--s-6);
+  padding-block: var(--s-8) var(--s-16);
+  max-width: 780px;   /* narrower than the landing shell: this is a form, not a page */
+}
+
+/* --- panel ---------------------------------------------------------------- */
+.panel {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  padding: var(--s-6);
+}
+@media (min-width: 640px) { .panel { padding: var(--s-8); } }
+
+.panel__head {
+  display: flex; flex-wrap: wrap; gap: var(--s-4);
+  align-items: flex-start; justify-content: space-between;
+  margin-bottom: var(--s-4);
+}
+.panel__title {
+  margin-top: var(--s-2);
+  font-size: var(--t-h2);
+  letter-spacing: -0.025em;
+}
+.panel__meta { display: flex; align-items: center; gap: var(--s-4); }
+.panel__copy { margin-block: var(--s-6); font-size: var(--t-small); }
+
+/* --- state badge ---------------------------------------------------------
+   Shape and position carry the state as much as value does; the label next to
+   it is the real signal, so the dot never has to be read alone. */
+.state { display: inline-flex; align-items: center; }
+.dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--text-faint);
+  transition: background var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.dot.good { background: var(--text); box-shadow: 0 0 0 3px color-mix(in srgb, var(--text) 12%, transparent); }
+.dot.warn { background: var(--text-muted); }
+.dot.bad  { background: var(--text-faint); box-shadow: 0 0 0 3px color-mix(in srgb, var(--text-faint) 18%, transparent); }
+.dot.pending { background: var(--text); animation: pulse 1.6s var(--ease) infinite; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.45; transform: scale(0.82); }
+}
+
+/* --- stats ---------------------------------------------------------------- */
+.stats {
+  display: grid; gap: var(--s-4);
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  margin-block: var(--s-6);
+}
+.stat {
+  display: grid; gap: var(--s-1);
+  padding: var(--s-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.stat__k {
+  font-size: var(--t-note); letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text-muted);
+}
+.stat__v { font-size: 1.5rem; font-weight: 500; letter-spacing: -0.02em; }
+.stat__v--sm { font-size: var(--t-small); font-weight: 400; }
+
+/* --- comparison bars -----------------------------------------------------
+   app.js sets `style.width` on the fills, so these are width-driven rather
+   than transform-driven. Width animation is acceptable here: it runs once per
+   refresh on two elements, not per scroll frame. */
+.bars { display: grid; gap: var(--s-4); margin-top: var(--s-6); }
+.bars__row {
+  display: grid; align-items: center;
+  grid-template-columns: 1fr auto;
+  gap: var(--s-2) var(--s-4);
+}
+@media (min-width: 620px) {
+  .bars__row { grid-template-columns: 200px 1fr 52px 96px; }
+}
+.bars__label { font-size: var(--t-small); color: var(--text-muted); }
+.bars__track {
+  grid-column: 1 / -1;
+  position: relative; height: 8px;
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+  border-radius: 999px; overflow: hidden;
+}
+@media (min-width: 620px) { .bars__track { grid-column: auto; } }
+.bars__fill {
+  position: absolute; inset: 0 auto 0 0; width: 0;
+  background: color-mix(in srgb, var(--text) 30%, transparent);
+  border-radius: 999px;
+  transition: width 700ms var(--ease);
+}
+.bars__fill--lead { background: var(--text); }
+.bars__pct { font-size: var(--t-small); color: var(--text-muted); }
+.bars__amt { font-size: var(--t-small); text-align: right; }
+.bars__row--lead .bars__label { color: var(--text); }
+
+/* --- rows ----------------------------------------------------------------- */
+.rows { margin: var(--s-4) 0 var(--s-8); }
+.rows__row {
+  display: flex; justify-content: space-between; gap: var(--s-4);
+  padding-block: var(--s-3);
+  border-bottom: 1px solid var(--line);
+  font-size: var(--t-small);
+}
+.rows__row:last-child { border-bottom: 0; }
+.rows dt { color: var(--text-muted); margin: 0; }
+.rows dd { margin: 0; }
+
+/* --- fields --------------------------------------------------------------
+   Labels are visible, not placeholder-only: a placeholder disappears the
+   moment you type, which is exactly when you still need to know what the
+   field was for. */
+.field { display: grid; gap: var(--s-2); }
+.field__label {
+  font-size: var(--t-note); letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text-muted);
+}
+.field__row { display: grid; gap: var(--s-2); }
+@media (min-width: 560px) {
+  .field__row { grid-template-columns: 1fr auto; }
+  .field__row--actions { grid-template-columns: 1fr repeat(3, auto); }
+}
+.field__help {
+  font-size: var(--t-note); color: var(--text-muted);
+  line-height: 1.5; max-width: 60ch;
+}
+
+/* --- pending -------------------------------------------------------------- */
+.pending-row {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-4);
+  margin-top: var(--s-4);
+}
+.pending-dots { display: inline-flex; gap: 4px; }
+.pending-dots i {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--text-muted);
+  animation: bob 1.2s var(--ease) infinite;
+}
+.pending-dots i:nth-child(2) { animation-delay: 150ms; }
+.pending-dots i:nth-child(3) { animation-delay: 300ms; }
+@keyframes bob {
+  0%, 60%, 100% { opacity: 0.28; transform: translateY(0); }
+  30%           { opacity: 1;    transform: translateY(-3px); }
+}
+
+/* --- notices -------------------------------------------------------------
+   Errors sit next to the thing that failed, not stacked at the top of the
+   page where you have to hunt for the cause. */
+.notice {
+  margin-top: var(--s-4);
+  padding: var(--s-3) var(--s-4);
+  border: 1px solid var(--line);
+  border-left-width: 2px;
+  border-left-color: var(--text);
+  border-radius: var(--radius);
+  font-size: var(--t-small);
+  color: var(--text);
+  word-break: break-word;
+}
+
+.app-foot { margin-top: var(--s-4); max-width: none; }
+.app-foot code {
+  font-size: var(--t-note);
+  padding: 1px 4px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+}
+
+.hide { display: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dot.pending, .pending-dots i { animation: none; }
+  .bars__fill { transition: none; }
+}

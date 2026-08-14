@@ -1,179 +1,280 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="no-js">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>TrustLine — Confidential Underwriting</title>
-<style>
-  :root {
-    --bg: #0b0f14;
-    --panel: #131a23;
-    --panel-2: #1a2330;
-    --line: #26313f;
-    --text: #e6edf3;
-    --muted: #8b9bb0;
-    --accent: #ff6b4a;
-    --good: #3fb950;
-    --warn: #d29922;
-    --bad: #f85149;
-    --radius: 10px;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; background: var(--bg); color: var(--text);
-    font: 15px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  }
-  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 20px 80px; }
-  header { border-bottom: 1px solid var(--line); padding-bottom: 20px; margin-bottom: 28px; }
-  h1 { margin: 0 0 6px; font-size: 26px; letter-spacing: -0.02em; }
-  h1 span { color: var(--accent); }
-  .sub { color: var(--muted); margin: 0; font-size: 14px; }
-  .card {
-    background: var(--panel); border: 1px solid var(--line);
-    border-radius: var(--radius); padding: 20px; margin-bottom: 18px;
-  }
-  .card h2 { margin: 0 0 14px; font-size: 15px; text-transform: uppercase;
-             letter-spacing: 0.08em; color: var(--muted); font-weight: 600; }
-  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-  input {
-    flex: 1 1 260px; min-width: 0; background: var(--bg); color: var(--text);
-    border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px;
-  }
-  input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
-  button {
-    background: var(--accent); color: #16110f; border: 0; border-radius: 8px;
-    padding: 10px 16px; font-weight: 650; cursor: pointer; font-size: 14px;
-  }
-  button.secondary { background: var(--panel-2); color: var(--text); border: 1px solid var(--line); }
-  button:disabled { opacity: 0.45; cursor: not-allowed; }
-  .state { display: inline-flex; align-items: center; gap: 7px; font-weight: 600; font-size: 13px;
-           padding: 5px 11px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel-2); }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
-  .dot.good { background: var(--good); } .dot.warn { background: var(--warn); }
-  .dot.bad { background: var(--bad); } .dot.pending { background: var(--accent); }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 14px; }
-  .stat { background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
-  .stat .k { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; }
-  .stat .v { font-size: 20px; font-weight: 650; margin-top: 3px; font-variant-numeric: tabular-nums; }
-  .compare { margin-top: 16px; }
-  .bar { height: 26px; background: var(--panel-2); border-radius: 6px; overflow: hidden;
-         border: 1px solid var(--line); position: relative; margin-bottom: 8px; }
-  .bar > i { display: block; height: 100%; }
-  .bar .fill-std { background: #30475e; }
-  .bar .fill-uw { background: linear-gradient(90deg, var(--accent), #ff9d7a); }
-  .bar b { position: absolute; inset: 0; display: flex; align-items: center;
-           padding: 0 10px; font-size: 12px; font-weight: 600; }
-  .legend { display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; }
-  code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; }
-  .muted { color: var(--muted); }
-  .note { font-size: 13px; color: var(--muted); margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
-  .err { color: var(--bad); font-size: 13px; margin-top: 10px; word-break: break-word; }
-  .hide { display: none !important; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  td { padding: 6px 0; border-bottom: 1px solid var(--line); }
-  td:first-child { color: var(--muted); width: 42%; }
-  td:last-child { text-align: right; }
-</style>
+<title>TrustLine — Confidential underwriting for XRPFi lending</title>
+<meta name="description" content="TrustLine scores a borrower's XRPL history inside a TEE and signs only the verdict, so a lending pool can go under-collateralized without the borrower's transaction history ever touching the chain." />
+<link rel="stylesheet" href="./styles.css" />
+<script>document.documentElement.classList.remove('no-js');</script>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1>Trust<span>Line</span></h1>
-    <p class="sub">Confidential underwriting for XRPFi lending on Flare · Coston2</p>
-  </header>
 
-  <div class="card">
-    <h2>Connection</h2>
-    <div class="row">
-      <button id="connect">Connect wallet</button>
-      <span id="account" class="mono muted">not connected</span>
-    </div>
-    <div id="netErr" class="err hide"></div>
+<div class="scroll-progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-head">
+  <div class="shell head-inner">
+    <a class="wordmark" href="./index.html" aria-label="TrustLine, home">
+      <svg width="15" height="15" viewBox="0 0 15 15" aria-hidden="true" focusable="false">
+        <rect x="0.5" y="0.5" width="14" height="14" fill="none" stroke="currentColor"/>
+        <path d="M0.5 10.5 L4.5 6.5 L7.5 9.5 L14.5 2.5" fill="none" stroke="currentColor"/>
+      </svg>
+      <span>TrustLine</span>
+    </a>
+    <nav class="head-nav" aria-label="Primary">
+      <a href="#problem">Problem</a>
+      <a href="#how">How it works</a>
+      <a href="#privacy">Privacy</a>
+    </nav>
+    <a class="btn" href="./app.html">Open app</a>
   </div>
+</header>
 
-  <div class="card">
-    <h2>Credit status</h2>
-    <div class="row" style="justify-content: space-between">
-      <span id="stateBadge" class="state"><i class="dot"></i><span id="stateText">Not connected</span></span>
-      <span id="expiryCountdown" class="muted mono"></span>
-    </div>
+<main id="main">
 
-    <div id="attested" class="hide">
-      <div class="grid">
-        <div class="stat"><div class="k">Risk tier</div><div class="v" id="tierV">—</div></div>
-        <div class="stat"><div class="k">Max LTV</div><div class="v" id="ltvV">—</div></div>
-        <div class="stat"><div class="k">Attested by</div><div class="v mono" id="teeV" style="font-size:13px">—</div></div>
-      </div>
+  <!-- ── Hero ─────────────────────────────────────────────────────────── -->
+  <section class="hero iso-bg" id="hero">
+    <span class="iso-mark" style="left:18%;top:34%"></span>
+    <span class="iso-mark" style="left:78%;top:28%"></span>
+    <span class="iso-mark" style="left:31%;top:74%"></span>
+    <span class="iso-mark" style="left:66%;top:82%"></span>
 
-      <div class="compare">
-        <div class="legend"><span>Standard (overcollateralized)</span><span id="stdAmt">—</span></div>
-        <div class="bar"><i class="fill-std" id="stdBar" style="width:0"></i><b id="stdPct"></b></div>
-        <div class="legend"><span>Underwritten by TrustLine</span><span id="uwAmt">—</span></div>
-        <div class="bar"><i class="fill-uw" id="uwBar" style="width:0"></i><b id="uwPct"></b></div>
-      </div>
-    </div>
+    <div class="shell hero-grid">
+      <h1 class="hero-title reveal" data-reveal>
+        <span class="line-mask"><span>Borrow on trust,</span></span>
+        <span class="line-mask hero-title__offset"><span>not just collateral.</span></span>
+      </h1>
 
-    <div id="notAttested" class="hide">
-      <p class="muted" style="font-size:13.5px">
-        Request a confidential credit check. Your XRPL transaction history is read
-        <strong>inside a TEE</strong> — only a risk tier and a max LTV are ever published on-chain.
+      <p class="annot hero-annot reveal" data-reveal data-delay="220">
+        TrustLine reads a borrower's XRPL history inside a secure enclave,
+        then signs only the verdict. The evidence never leaves.
       </p>
-      <div class="row">
-        <input id="xrplAddr" placeholder="rPEPPER7kfTD9w2To4CQk6UCfuHM9c6GDY" spellcheck="false" />
-        <button id="requestBtn">Request credit check</button>
+
+      <!-- The product, drawn literally: many layers of private history on the
+           left, compressed through the enclave, emerging as one small signed
+           card on the right. -->
+      <figure class="hero-figure reveal" data-reveal data-delay="120" aria-labelledby="figcap">
+        <svg viewBox="0 0 560 380" role="img" aria-labelledby="figtitle" class="iso-svg">
+          <title id="figtitle">Layers of private transaction history compressed into a single signed attestation</title>
+          <defs>
+            <linearGradient id="fade" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%"  stop-color="currentColor" stop-opacity="0.04"/>
+              <stop offset="100%" stop-color="currentColor" stop-opacity="0.16"/>
+            </linearGradient>
+          </defs>
+          <g class="iso-stack" stroke="currentColor" fill="none" stroke-width="1">
+            <!-- history layers -->
+            <g opacity="0.55">
+              <path d="M60 190 L150 138 L240 190 L150 242 Z" fill="url(#fade)"/>
+              <path d="M60 172 L150 120 L240 172 L150 224 Z" fill="url(#fade)"/>
+              <path d="M60 154 L150 102 L240 154 L150 206 Z" fill="url(#fade)"/>
+              <path d="M60 136 L150 84  L240 136 L150 188 Z" fill="url(#fade)"/>
+              <path d="M60 118 L150 66  L240 118 L150 170 Z" fill="url(#fade)"/>
+            </g>
+            <!-- enclave boundary -->
+            <path class="iso-enclave" d="M300 200 L370 159 L440 200 L370 241 Z"
+                  fill="none" stroke-dasharray="3 4" opacity="0.75"/>
+            <path class="iso-enclave" d="M300 200 L300 172 L370 131 L440 172 L440 200"
+                  fill="none" stroke-dasharray="3 4" opacity="0.75"/>
+            <path d="M370 159 L370 131" stroke-dasharray="3 4" opacity="0.75"/>
+            <!-- the attestation -->
+            <path class="iso-out" d="M370 200 L410 177 L450 200 L410 223 Z"
+                  fill="currentColor" fill-opacity="0.9" stroke="none"/>
+            <!-- flow -->
+            <path class="iso-flow" d="M244 152 C270 152 276 178 298 186" opacity="0.5"/>
+            <path class="iso-flow" d="M244 168 C268 168 276 184 298 192" opacity="0.35"/>
+          </g>
+        </svg>
+        <figcaption id="figcap" class="annot iso-cap">
+          <span>Transaction history</span>
+          <span>Enclave</span>
+          <span>Signed verdict</span>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ── Problem ──────────────────────────────────────────────────────── -->
+  <section id="problem">
+    <div class="shell">
+      <p class="eyebrow reveal" data-reveal>The problem</p>
+      <div class="split">
+        <h2 class="reveal" data-reveal>Every DeFi loan asks you to over-deposit.</h2>
+        <p class="lede reveal" data-reveal data-delay="80">
+          Put up $1,000 of collateral, borrow $500. Not because you have money spare —
+          but because the contract has no idea who you are.
+        </p>
+      </div>
+
+      <div class="offset-cards stagger reveal" data-reveal>
+        <article class="card offset-cards__a">
+          <p class="eyebrow">Today</p>
+          <h3>Overcollateralization stands in for trust.</h3>
+          <p class="muted card-body">
+            A pool that can't assess you simply demands enough collateral that it
+            doesn't need to care whether you disappear.
+          </p>
+        </article>
+
+        <article class="card offset-cards__b">
+          <p class="eyebrow">The catch</p>
+          <h3>Your history could prove you're good for it — at a price.</h3>
+          <p class="muted card-body">
+            XRPL is public, so the evidence exists. But using it on-chain means
+            publishing your balances, counterparties and volumes permanently,
+            to everyone. Most people won't. So everyone stays at 50%.
+          </p>
+        </article>
       </div>
     </div>
+  </section>
 
-    <div id="pending" class="hide">
-      <p class="muted" style="font-size:13.5px">
-        Instruction sent. It must reach a TEE machine, be scored, signed, and relayed back on-chain.
-        This is not instant and there is no progress to show — the page polls the registry and will
-        update when the attestation lands.
+  <!-- ── How it works — the inversion ─────────────────────────────────── -->
+  <section id="how" class="invert iso-bg">
+    <span class="iso-mark" style="left:12%;top:20%"></span>
+    <span class="iso-mark" style="left:84%;top:66%"></span>
+
+    <div class="shell">
+      <p class="eyebrow reveal" data-reveal>How it works</p>
+      <div class="split">
+        <h2 class="reveal" data-reveal>The assessment happens inside a sealed box.</h2>
+        <p class="lede reveal" data-reveal data-delay="80">
+          Flare's Confidential Compute runs code in hardware enclaves that the machine's
+          own operator cannot see into. We put the credit check in there.
+        </p>
+      </div>
+
+      <ol class="steps stagger reveal" data-reveal>
+        <li>
+          <span class="steps__n num">01</span>
+          <h3>You request a check</h3>
+          <p class="muted">One transaction naming the XRPL address you want assessed.</p>
+        </li>
+        <li>
+          <span class="steps__n num">02</span>
+          <h3>The enclave reads your history</h3>
+          <p class="muted">Account age, transaction count, payment volume, counterparty diversity — all computed inside, none of it emitted.</p>
+        </li>
+        <li>
+          <span class="steps__n num">03</span>
+          <h3>It signs a verdict</h3>
+          <p class="muted">Six values: address, a hash of your XRPL account, a tier, a maximum LTV, and two timestamps. Nothing else.</p>
+        </li>
+        <li>
+          <span class="steps__n num">04</span>
+          <h3>The pool verifies and lends</h3>
+          <p class="muted">The contract confirms the signature came from a registered enclave, then lends against the tier.</p>
+        </li>
+      </ol>
+
+      <!-- The payoff, stated in the only numbers that matter. -->
+      <div class="compare reveal" data-reveal>
+        <div class="compare__row">
+          <span class="compare__label">Standard, overcollateralized</span>
+          <span class="compare__bar"><i style="--w:50%"></i></span>
+          <span class="compare__val num">50%</span>
+        </div>
+        <div class="compare__row compare__row--lead">
+          <span class="compare__label">Underwritten by TrustLine</span>
+          <span class="compare__bar"><i style="--w:75%" class="is-lead"></i></span>
+          <span class="compare__val num">75%</span>
+        </div>
+        <p class="annot compare__note">
+          Same $1,000 collateral. $750 instead of $500 — and the history behind
+          that number was never published.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Privacy ──────────────────────────────────────────────────────── -->
+  <section id="privacy">
+    <div class="shell">
+      <p class="eyebrow reveal" data-reveal>What actually stays private</p>
+      <div class="split">
+        <h2 class="reveal" data-reveal>Six values on-chain. Nothing behind them.</h2>
+        <p class="lede reveal" data-reveal data-delay="80">
+          We'd rather be precise about this than impressive. Here is the whole
+          disclosure, and the one thing it doesn't cover.
+        </p>
+      </div>
+
+      <div class="ledger reveal" data-reveal>
+        <div class="ledger__col">
+          <p class="eyebrow">Published</p>
+          <ul class="list">
+            <li>Your wallet address</li>
+            <li>A hash of your XRPL address</li>
+            <li>Risk tier, 0–3</li>
+            <li>Maximum LTV</li>
+            <li>Issued-at and expiry</li>
+          </ul>
+        </div>
+        <div class="ledger__col">
+          <p class="eyebrow">Never leaves the enclave</p>
+          <ul class="list">
+            <li>Transaction history</li>
+            <li>Counterparties</li>
+            <li>Balances and volumes</li>
+            <li>Account age</li>
+            <li>Every intermediate score</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="caveat reveal" data-reveal>
+        <p class="eyebrow">Stated plainly</p>
+        <p class="muted">
+          The XRPL address you ask about is visible in the request itself — the
+          enclave has to be told what to score. So the link between your wallet and
+          your XRPL account is public. What stays confidential is the
+          <em>evidence</em> behind your score, not the fact that you asked for one.
+          A determined attacker can also age accounts to game the tier; the model
+          raises that cost, it doesn't eliminate it.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA ──────────────────────────────────────────────────────────── -->
+  <section class="cta invert">
+    <div class="shell cta-inner">
+      <h2 class="reveal" data-reveal>
+        <span class="line-mask"><span>See your tier.</span></span>
+      </h2>
+      <p class="lede reveal" data-reveal data-delay="80">
+        Connect a wallet on Coston2 and request a confidential credit check.
       </p>
-      <div class="row">
-        <code id="pendingTx" class="muted"></code>
-        <button id="refreshBtn" class="secondary">Check now</button>
+      <div class="reveal" data-reveal data-delay="140">
+        <a class="btn btn--invert" href="./app.html">
+          Open the app
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.4"/>
+          </svg>
+        </a>
       </div>
     </div>
+  </section>
 
-    <div id="reqErr" class="err hide"></div>
-  </div>
+</main>
 
-  <div class="card">
-    <h2>Pool position</h2>
-    <table>
-      <tr><td>Collateral</td><td class="mono" id="colV">—</td></tr>
-      <tr><td>Debt</td><td class="mono" id="debtV">—</td></tr>
-      <tr><td>Available to borrow</td><td class="mono" id="availV">—</td></tr>
-      <tr><td>Current LTV</td><td class="mono" id="curLtvV">—</td></tr>
-      <tr><td>Liquidation threshold</td><td class="mono" id="liqV">—</td></tr>
-    </table>
-    <div class="row" style="margin-top:14px">
-      <input id="amount" placeholder="amount" spellcheck="false" />
-      <button id="depositBtn" class="secondary">Deposit</button>
-      <button id="borrowBtn">Borrow</button>
-      <button id="repayBtn" class="secondary">Repay</button>
-    </div>
-    <div id="poolErr" class="err hide"></div>
-    <p class="note">
-      Contracts are read from <code>config.js</code>. Deploy with
-      <code>forge script script/Deploy.s.sol</code> and fill in the addresses.
+<footer class="site-foot">
+  <div class="shell foot-inner">
+    <p class="annot">
+      TrustLine — confidential underwriting for XRPFi lending.<br>
+      Built for the Flare Summer Signal hackathon. Coston2 testnet.
+    </p>
+    <p class="annot">
+      <a class="link-arrow" href="https://github.com/CHEF-SAVY/trustline">
+        Source
+        <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.4"/>
+        </svg>
+      </a>
     </p>
   </div>
+</footer>
 
-  <div class="card">
-    <h2>What stays private</h2>
-    <p class="muted" style="font-size:13.5px; margin:0">
-      On-chain, an attestation reveals only: your address, a <em>hash</em> of your XRPL address, a tier
-      0–3, an LTV, and two timestamps. Your transaction history, counterparties, balances and volumes
-      never leave the TEE. The XRPL address itself is visible in the <em>request</em> event — the TEE has
-      to be told what to score — so the borrower↔XRPL link is public while the evidence behind the
-      score is not.
-    </p>
-  </div>
-</div>
-
-<script type="module" src="./app.js"></script>
+<script type="module" src="./motion.js"></script>
 </body>
 </html>
