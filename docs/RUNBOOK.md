@@ -39,6 +39,42 @@ $ grep tee-node backend/go.mod
 github.com/flare-foundation/tee-node v0.0.24     # >= v0.0.22 ✅
 ```
 
+## 0b. Two environment traps on this machine
+
+**`LANGUAGE` collides with the system locale.** The scaffold uses `LANGUAGE=go` to pick which
+implementation directory to build, but `LANGUAGE` is also a standard POSIX locale variable — on this
+box it is `en_GB:en`, which shadows the value in `.env.coston2`:
+
+```
+[language] ERROR: unknown LANGUAGE 'en_GB:en' — no en_GB:en/language.env found.
+```
+
+Always invoke the scripts with it set explicitly:
+
+```bash
+LANGUAGE=go ./scripts/start-services.sh --chain coston2
+```
+
+**Docker builds fail on IPv6.** DNS here returns IPv6-only records for `docker.io` and
+`dl-cdn.alpinelinux.org`, but containers have no IPv6 route, so builds die with:
+
+```
+dial tcp [2600:...]:443: connect: network is unreachable
+ERROR: unable to select packages: git (no such package)
+```
+
+Verified: host IPv4 to the registry returns 401 (reachable), IPv6 returns nothing. The fix is to
+build on the host network, which inherits the working IPv4 fallback — no daemon config and no sudo:
+
+- `network: host` under each `build:` block in the `docker-compose*.yaml` files
+- `--network=host` on the `docker build` calls in `scripts/start-services.sh` and
+  `scripts/build-node-base.sh`
+
+Both are already applied in `tee-runtime/`. If you regenerate that directory from a fresh clone of
+the scaffold, reapply them.
+
+---
+
 ## 1. The delivery model (read this before debugging anything)
 
 ```
