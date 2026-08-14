@@ -57,12 +57,49 @@ function initReveals() {
     {
       // Fire slightly before the element reaches the viewport edge, so motion
       // completes around the point the user's eye arrives.
-      rootMargin: '0px 0px -12% 0px',
-      threshold: 0.15,
+      //
+      // threshold MUST stay 0. An earlier version used 0.15, which asks for 15%
+      // of the ELEMENT to be inside an already-shrunk root — a tall block near
+      // the end of the page can never satisfy both at once, so it stayed at
+      // opacity 0 permanently. That stranded 4 of 20 elements, including the
+      // whole privacy caveat. Any sliver entering is enough to trigger.
+      rootMargin: '0px 0px -8% 0px',
+      threshold: 0,
     }
   );
 
-  document.querySelectorAll(REVEAL_SELECTOR).forEach((el) => observer.observe(el));
+  const items = Array.from(document.querySelectorAll(REVEAL_SELECTOR));
+  items.forEach((el) => observer.observe(el));
+
+  // Safety net. The observer alone can strand content that is on screen but
+  // never "enters" — short pages that don't scroll, anchor jumps that skip past
+  // an element, or a viewport taller than the remaining scroll distance.
+  // Anything whose top is already above the fold gets revealed outright.
+  const sweep = () => {
+    const h = window.innerHeight;
+    let remaining = 0;
+    for (const el of items) {
+      if (el.classList.contains('in')) continue;
+      if (el.getBoundingClientRect().top < h) {
+        el.classList.add('in');
+        observer.unobserve(el);
+      } else {
+        remaining++;
+      }
+    }
+    if (remaining === 0) window.removeEventListener('scroll', onScrollSweep);
+  };
+  let sweepQueued = false;
+  const onScrollSweep = () => {
+    if (sweepQueued) return;
+    sweepQueued = true;
+    requestAnimationFrame(() => { sweepQueued = false; sweep(); });
+  };
+
+  window.addEventListener('scroll', onScrollSweep, { passive: true });
+  window.addEventListener('resize', onScrollSweep, { passive: true });
+  window.addEventListener('load', sweep);
+  sweep();
 }
 
 function initScrollUI() {
