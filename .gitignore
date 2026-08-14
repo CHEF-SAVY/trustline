@@ -1,0 +1,49 @@
+# --- secrets ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+keystore/
+
+# --- Foundry ---
+contracts/out/
+contracts/cache/
+contracts/broadcast/
+contracts/.gas-snapshot
+contracts/docs/
+
+# --- Go ---
+backend/bin/
+backend/trustline-fce
+backend/relayer          # compiled binary; `go build ./...` drops it here
+*.test
+*.out
+
+# --- Node / frontend ---
+node_modules/
+frontend/.next/
+frontend/out/
+frontend/dist/
+frontend/.vercel/
+.turbo/
+
+# --- editors / OS ---
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# --- vendored agent skill packs ---
+# Installed with `npx skills add ...` (see CLAUDE.md), not our source. Keeping them
+# out avoids republishing flare-foundation's content inside this repo.
+.agents/
+.claude/skills/
+
+# --- design references ---
+# Large media (e.g. an 87MB screen-recording reference). GitHub warns above 50MB and
+# blocks above 100MB; keep design refs local or in a shared drive, not in git.
+ui-ux-design/
+
+# --- skills tooling ---
+skills-lock.json
