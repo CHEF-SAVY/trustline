@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TrustLine — Private credit for XRPFi</title>
+<meta name="description" content="TrustLine turns private XRPL account history into a TEE-signed lending verdict. The evidence stays private; the credit line goes on-chain." />
+<link rel="stylesheet" href="./styles.css" />
+<script>document.documentElement.classList.remove('no-js');</script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="scroll-progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-head">
+  <div class="shell head-inner">
+    <a class="wordmark" href="./index.html" aria-label="TrustLine, home">
+      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+        <rect x="1" y="1" width="16" height="16" rx="2" fill="none" stroke="currentColor"/>
+        <path d="M4 12.5 7.3 9l2.4 2.2L14 6.5" fill="none" stroke="currentColor" stroke-width="1.3"/>
+      </svg>
+      <span>TrustLine</span>
+    </a>
+    <nav class="head-nav" aria-label="Primary navigation">
+      <a href="#problem">Why</a>
+      <a href="#how">Process</a>
+      <a href="#privacy">Disclosure</a>
+    </nav>
+    <a class="btn btn--primary" href="./live/">Launch app <span aria-hidden="true">↗</span></a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero">
+    <div class="hero-grid-bg" aria-hidden="true"></div>
+    <div class="shell hero-layout">
+      <div class="hero-copy reveal" data-reveal>
+        <p class="eyebrow"><span class="live-dot" aria-hidden="true"></span> Live on Coston2</p>
+        <h1>Better credit.<br><span class="outline-type">Private by default.</span></h1>
+        <p class="hero-lede">
+          Prove what your XRPL activity says about you without putting the activity
+          itself on-chain. TrustLine publishes one signed lending verdict—and nothing behind it.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn--primary" href="./live/">Check your credit line</a>
+          <a class="text-link" href="#how">See the proof path <span aria-hidden="true">↓</span></a>
+        </div>
+      </div>
+
+      <div class="verdict-console reveal" data-reveal aria-label="Example private underwriting verdict">
+        <div class="console-head">
+          <span>CONFIDENTIAL COMPUTE / RESULT</span>
+          <span class="mono">EXT 66285</span>
+        </div>
+        <div class="console-body">
+          <div class="sealed-input" aria-hidden="true">
+            <span>XRPL HISTORY</span>
+            <i></i><i></i><i></i><i></i><i></i>
+            <b>SEALED</b>
+          </div>
+          <div class="console-arrow" aria-hidden="true">
+            <span></span><em>TEE</em><span></span>
+          </div>
+          <div class="verdict-card">
+            <span class="eyebrow">Signed verdict</span>
+            <div class="verdict-tier"><strong class="num">02</strong><span>LOW<br>RISK</span></div>
+            <dl>
+              <div><dt>MAX LTV</dt><dd class="num">75.00%</dd></div>
+              <div><dt>EVIDENCE EXPOSED</dt><dd class="num">0 bytes</dd></div>
+            </dl>
+          </div>
+        </div>
+        <div class="console-foot mono">
+          <span>✓ enclave signature verified</span>
+          <span>chain_id: 114</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="problem-section" id="problem">
+    <div class="shell">
+      <div class="section-kicker reveal" data-reveal>
+        <span class="section-no mono">01</span>
+        <p class="eyebrow">The collateral problem</p>
+      </div>
+      <div class="problem-layout">
+        <div class="problem-copy reveal" data-reveal>
+          <h2>DeFi assumes it knows nothing about you.</h2>
+          <p class="lede">So it asks for enough collateral that trust no longer matters. Safe for the pool. Capital-inefficient for everyone else.</p>
+        </div>
+
+        <div class="collateral-receipt reveal" data-reveal>
+          <div class="receipt-head"><span>STANDARD LOAN</span><span class="mono">NO CREDIT SIGNAL</span></div>
+          <div class="receipt-flow">
+            <div><small>YOU LOCK</small><strong class="num">$1,000</strong></div>
+            <span aria-hidden="true">→</span>
+            <div><small>YOU BORROW</small><strong class="num">$500</strong></div>
+          </div>
+          <div class="receipt-rule"></div>
+          <div class="receipt-total"><span>CAPITAL LEFT IDLE</span><strong class="num">$500</strong></div>
+        </div>
+      </div>
+
+      <div class="problem-answer reveal" data-reveal>
+        <p>Your public XRPL history already contains a credit signal.</p>
+        <p>The useful move is not to publish more of it. It is to compute over it privately.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="process-section" id="how">
+    <div class="shell">
+      <div class="section-kicker reveal" data-reveal>
+        <span class="section-no mono">02</span>
+        <p class="eyebrow">The private proof path</p>
+      </div>
+      <div class="process-heading reveal" data-reveal>
+        <h2>Your history enters.<br>Your verdict leaves.</h2>
+        <p class="lede">The scoring code runs inside a Flare Confidential Compute enclave. Even the machine operator cannot inspect the account data while it is being assessed.</p>
+      </div>
+
+      <ol class="signal-path reveal" data-reveal>
+        <li>
+          <span class="path-no mono">01 / REQUEST</span>
+          <div class="path-icon" aria-hidden="true"><span class="wallet-glyph"></span></div>
+          <h3>Name the XRPL account</h3>
+          <p>Your wallet sends one scoring instruction on Coston2.</p>
+        </li>
+        <li>
+          <span class="path-no mono">02 / COMPUTE</span>
+          <div class="path-icon path-icon--sealed" aria-hidden="true"><span class="chip-glyph">TEE</span></div>
+          <h3>Score inside the enclave</h3>
+          <p>Age, volume, activity, and counterparty diversity stay sealed.</p>
+        </li>
+        <li>
+          <span class="path-no mono">03 / SIGN</span>
+          <div class="path-icon" aria-hidden="true"><span class="signature-glyph">✓</span></div>
+          <h3>Sign six values</h3>
+          <p>Wallet, address hash, tier, LTV, issued time, and expiry.</p>
+        </li>
+        <li>
+          <span class="path-no mono">04 / LEND</span>
+          <div class="path-icon" aria-hidden="true"><span class="pool-glyph"></span></div>
+          <h3>Verify, then lend</h3>
+          <p>The pool accepts the enclave signature and applies your tier.</p>
+        </li>
+      </ol>
+
+      <div class="ltv-comparison reveal" data-reveal>
+        <div class="ltv-copy">
+          <p class="eyebrow">The outcome</p>
+          <h3>Same collateral.<br>More room to borrow.</h3>
+        </div>
+        <div class="ltv-bars">
+          <div class="ltv-row">
+            <div><span>Standard pool</span><strong class="num">50%</strong></div>
+            <i><b style="--bar: 66.666%"></b></i>
+          </div>
+          <div class="ltv-row ltv-row--trust">
+            <div><span>TrustLine / tier 2</span><strong class="num">75%</strong></div>
+            <i><b style="--bar: 100%"></b></i>
+          </div>
+        </div>
+        <div class="ltv-delta"><span class="num">+$250</span><small>borrowing power per $1,000 deposited</small></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="privacy-section" id="privacy">
+    <div class="shell">
+      <div class="section-kicker reveal" data-reveal>
+        <span class="section-no mono">03</span>
+        <p class="eyebrow">Exact disclosure</p>
+      </div>
+      <div class="privacy-heading reveal" data-reveal>
+        <h2>Privacy, stated precisely.</h2>
+        <p class="lede">Not a black box claim. A line-by-line account of what becomes public and what never leaves the enclave.</p>
+      </div>
+
+      <div class="disclosure-ledger reveal" data-reveal>
+        <article class="disclosure-col disclosure-col--public">
+          <header><span class="ledger-mark">○</span><div><p class="eyebrow">Published on-chain</p><h3>The verdict</h3></div></header>
+          <ul>
+            <li><span>01</span>Your EVM wallet</li>
+            <li><span>02</span>Hash of the XRPL address</li>
+            <li><span>03</span>Risk tier and max LTV</li>
+            <li><span>04</span>Issued time and expiry</li>
+          </ul>
+        </article>
+        <div class="ledger-divider" aria-hidden="true"><span>BOUNDARY</span></div>
+        <article class="disclosure-col disclosure-col--private">
+          <header><span class="ledger-mark">●</span><div><p class="eyebrow">Sealed in the TEE</p><h3>The evidence</h3></div></header>
+          <ul>
+            <li><span>01</span><b>Transaction history</b></li>
+            <li><span>02</span><b>Balances and volumes</b></li>
+            <li><span>03</span><b>Counterparties</b></li>
+            <li><span>04</span><b>Intermediate scores</b></li>
+          </ul>
+        </article>
+      </div>
+
+      <aside class="plain-truth reveal" data-reveal>
+        <p class="eyebrow">The plain truth</p>
+        <p>The XRPL address in your request is public because the enclave must know what to score. TrustLine protects the financial evidence—not the fact that you requested a check. The current model also raises the cost of manufactured history; it does not eliminate Sybil risk.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="shell cta-grid reveal" data-reveal>
+      <div>
+        <p class="eyebrow">Coston2 testnet</p>
+        <h2>Put your history to work.<br>Keep it yours.</h2>
+      </div>
+      <div class="cta-action">
+        <p>Connect a wallet, inspect your live pool position, and request a private credit check.</p>
+        <a class="btn btn--light" href="./live/">Open TrustLine <span aria-hidden="true">↗</span></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="shell foot-inner">
+    <div><a class="wordmark" href="./index.html">TrustLine</a><p>Confidential underwriting for XRPFi.</p></div>
+    <p>Built for Flare Summer Signal<br><span class="mono">COSTON2 / CHAIN 114</span></p>
+    <a class="text-link" href="https://github.com/CHEF-SAVY/trustline">View source <span aria-hidden="true">↗</span></a>
+  </div>
+</footer>
+
+<script type="module" src="./motion.js"></script>
+</body>
+</html>

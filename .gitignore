@@ -47,3 +47,8 @@ ui-ux-design/
 
 # --- skills tooling ---
 skills-lock.json
+
+# --- TEE runtime ---
+# Working copy of fce-extension-scaffold with our extension swapped in. Holds
+# keys and indexer credentials; regenerate rather than commit.
+tee-runtime/

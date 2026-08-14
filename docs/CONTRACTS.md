@@ -137,15 +137,32 @@ last gap needs a commit-reveal or encrypted instruction payload — out of scope
 
 ## 8. Deployed addresses (Coston2)
 
-_Filled in at deployment._
+Deployed 2026-08-14 from `0x3d582d907c8d73764b261c25c1D7C317Eaaee034`.
 
 | Contract | Address |
 |---|---|
-| `UnderwritingVerifier` | — |
-| `CreditRegistry` | — |
-| `TrustLineInstructionSender` | — |
-| `TrustLinePool` | — |
-| Extension ID | — |
+| `TrustLineInstructionSender` | `0x33C7E0D2d9da4eF91de1C99Cfd33692e640DfD0E` |
+| `UnderwritingVerifier` | `0xB032C85F0dEF5107b7178Ae09d75eCdD5dC3b6e1` |
+| `CreditRegistry` | `0xFC7aeDaCcD34AA685d60141BFFE9568FB71f8D9A` |
+| `TrustLinePool` | `0xE2A6be036cfFedf83406772D31e745cBA8EA3e58` |
+| Pool asset (FXRP / `FTestXRP`, **6 dp**) | `0x0b6A3645c240605887a5532109323A3E12273dc7` |
+| **Extension ID** | **66285** |
+
+Verified on-chain after deployment: the sender's latched id, the verifier's immutable
+`EXTENSION_ID`, and the diamond's registered `stateVerifier` / `instructionsSender` for 66285 all
+agree, and the extension is owned by the deployer.
+
+> **Deployment trap, recorded so it isn't hit twice.** `forge script` simulates the whole script and
+> then broadcasts the resulting transaction list, so a value *returned* by an on-chain call during
+> simulation gets baked into later transactions. Our first attempt read `register()` → `66284` in
+> simulation; another developer registered that id in the seconds before our broadcast landed, so
+> the verifier was deployed with an immutable id we did not own and `setExtensionContracts`
+> reverted. Registration and consumer deployment are now two separate script entry points
+> (`run()` then `deployConsumers()`), with the id read back from the chain in between and asserted
+> against `getExtensionOwner` before anything is deployed.
+
+**Not yet true:** no TEE machine is registered to extension 66285, so `requestCreditCheck` emits an
+instruction that nothing answers. The contracts are live; attestations are not.
 
 ## 9. Function signatures and events
 

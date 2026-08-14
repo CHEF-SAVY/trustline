@@ -1,0 +1,34 @@
+Hi — could I get the current Coston2 indexer DB credentials for an FCE, please?
+
+I'm building TrustLine for the Summer Signal hackathon (Bounty 2, Confidential
+Compute). It adds an underwriting layer to XRPFi lending: the extension reads a
+borrower's XRPL transaction history inside the TEE, scores it, and returns only a
+signed {borrower, riskTier, maxLTV, expiry} tuple. A pool contract verifies the
+TEE signature on-chain and lends against the tier, so the borrower's raw history
+never touches the chain and no operator ever sees it.
+
+I need the credentials so ext-proxy can pass its startup sync and readiness
+checks. I understand the indexer-reader ones in the older docs are dead, so I'm
+after the current set from the pinned message.
+
+Where I am so far:
+
+  Extension ID       66285 (registered, owned by my deployer)
+  FlareTeeManager    0x1a9C4A0f9D76c0b1D91d22E24E573a9b377618aE
+  Deployer           0x3d582d907c8d73764b261c25c1D7C317Eaaee034
+  Chain              Coston2 only, SIMULATED_TEE=true
+  Versions           scaffold main, tee-node v0.0.24, tee-proxy v0.0.18
+
+Contracts are already deployed and verified on Coston2. The only thing left is
+standing up the TEE machine itself.
+
+Two quick questions while I'm here:
+
+  1. Do external developers need VPN access as well, or are the DB credentials
+     enough? The docs mention 34.38.42.208:3306 in one place and
+     35.241.249.150:3306 in another — which applies for Coston2?
+
+  2. Anything else needed before register-tee -command rRap will promote a
+     simulated machine to PRODUCTION?
+
+Happy to share the repo or anything else useful. Thanks very much.
